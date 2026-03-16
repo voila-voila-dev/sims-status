@@ -1,5 +1,5 @@
 import { StatusBar } from "./StatusBar"
-import type { StatusEntry, CategoryId } from "./useStatusStore"
+import type { StatusEntry, CategoryId } from "#/hooks/useStatusStore"
 import type { TranslationKey } from "#/hooks/useLocale"
 
 export function StatusPanel({
@@ -7,11 +7,13 @@ export function StatusPanel({
 	t,
 	onLevelChange,
 	onDirectionCycle,
+	onInteractionEnd,
 }: {
 	statuses: StatusEntry[]
 	t: (key: TranslationKey) => string
 	onLevelChange: (id: CategoryId, level: number) => void
 	onDirectionCycle: (id: CategoryId) => void
+	onInteractionEnd?: () => void
 }) {
 	return (
 		<div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -22,6 +24,7 @@ export function StatusPanel({
 					label={t(entry.id)}
 					onLevelChange={onLevelChange}
 					onDirectionCycle={onDirectionCycle}
+					onInteractionEnd={onInteractionEnd}
 				/>
 			))}
 		</div>

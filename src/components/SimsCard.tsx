@@ -1,81 +1,11 @@
-import { useState, useCallback, useEffect, useRef } from "react"
+import { useState, useCallback } from "react"
 import { EditableTitle } from "./EditableTitle"
 import { Plumbob } from "./Plumbob"
 import { SettingsModal } from "./SettingsModal"
 import { StatusPanel } from "./StatusPanel"
-import {
-	useStatusStore,
-	DEFAULT_STATUSES,
-	type StatusEntry,
-	type Direction,
-} from "./useStatusStore"
-import { t, getDateLocale, type Locale, LOCALES } from "#/hooks/useLocale"
-
-const DIR_SHORT: Record<Direction, string> = {
-	increasing: "i",
-	decreasing: "d",
-	stable: "s",
-}
-const DIR_FROM_SHORT: Record<string, Direction> = {
-	i: "increasing",
-	d: "decreasing",
-	s: "stable",
-}
-
-function parseStateFromURL(): {
-	statuses?: StatusEntry[]
-	title?: string
-	locale?: Locale
-} {
-	const params = new URLSearchParams(window.location.search)
-	const result: { statuses?: StatusEntry[]; title?: string; locale?: Locale } = {}
-
-	const parsed: StatusEntry[] = []
-	for (const base of DEFAULT_STATUSES) {
-		const val = params.get(base.id)
-		if (!val) continue
-		const [levelStr, dirShort] = val.split(".")
-		if (!dirShort || !DIR_FROM_SHORT[dirShort]) continue
-		const level = Number(levelStr)
-		if (isNaN(level) || level < 0 || level > 100) continue
-		parsed.push({
-			id: base.id,
-			level,
-			direction: DIR_FROM_SHORT[dirShort],
-			emoji: base.emoji,
-		})
-	}
-	if (parsed.length === DEFAULT_STATUSES.length) {
-		result.statuses = parsed
-	}
-
-	const title = params.get("t")
-	if (title) result.title = title
-
-	const l = params.get("l")
-	if (l && (LOCALES as readonly string[]).includes(l)) {
-		result.locale = l as Locale
-	}
-
-	return result
-}
-
-function encodeStateToURL(
-	statuses: StatusEntry[],
-	customTitle: string | null,
-	locale: Locale,
-): string {
-	const params = new URLSearchParams()
-
-	for (const st of statuses) {
-		params.set(st.id, `${st.level}.${DIR_SHORT[st.direction]}`)
-	}
-
-	if (customTitle) params.set("t", customTitle)
-	if (locale !== "en") params.set("l", locale)
-
-	return `${window.location.origin}${window.location.pathname}?${params.toString()}`
-}
+import { useStatusStore } from "#/hooks/useStatusStore"
+import { t, getDateLocale, type Locale } from "#/hooks/useLocale"
+import { parseStateFromURL, useUrlSync } from "#/hooks/useUrlSync"
 
 export function SimsCard() {
 	const [urlState] = useState(parseStateFromURL)
@@ -92,26 +22,14 @@ export function SimsCard() {
 		year: "numeric",
 	})
 
-	// Keep URL in sync with current state (debounced to avoid browser rate limit)
-	const replaceTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
-	useEffect(() => {
-		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
-		replaceTimerRef.current = setTimeout(() => {
-			const url = encodeStateToURL(statuses, customTitle, locale)
-			window.history.replaceState(null, "", url)
-		}, 150)
-		return () => {
-			if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
-		}
-	}, [statuses, customTitle, locale])
+	const { flushUrlSync, getShareUrl } = useUrlSync(statuses, customTitle, locale)
 
 	const handleShare = useCallback(() => {
-		const url = encodeStateToURL(statuses, customTitle, locale)
-		navigator.clipboard.writeText(url).then(() => {
+		navigator.clipboard.writeText(getShareUrl()).then(() => {
 			setCopied(true)
 			setTimeout(() => setCopied(false), 2000)
 		})
-	}, [statuses, customTitle, locale])
+	}, [getShareUrl])
 
 	return (
 		<div className="w-full max-w-sm mx-auto">
@@ -187,6 +105,7 @@ export function SimsCard() {
 						t={(key) => t(locale, key)}
 						onLevelChange={setLevel}
 						onDirectionCycle={cycleDirection}
+						onInteractionEnd={flushUrlSync}
 					/>
 				</div>
 

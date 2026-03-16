@@ -1,6 +1,6 @@
 import { useRef, useCallback } from "react"
 import { DirectionIndicator } from "./DirectionIndicator"
-import type { CategoryId, StatusEntry } from "./useStatusStore"
+import type { CategoryId, StatusEntry } from "#/hooks/useStatusStore"
 
 function barColorClass(level: number): string {
 	if (level >= 70) return "bg-bar-high shadow-bar-high/40"
@@ -14,11 +14,13 @@ export function StatusBar({
 	label,
 	onLevelChange,
 	onDirectionCycle,
+	onInteractionEnd,
 }: {
 	entry: StatusEntry
 	label: string
 	onLevelChange: (id: CategoryId, level: number) => void
 	onDirectionCycle: (id: CategoryId) => void
+	onInteractionEnd?: () => void
 }) {
 	const barRef = useRef<HTMLDivElement>(null)
 
@@ -52,6 +54,10 @@ export function StatusBar({
 		[handleInteraction],
 	)
 
+	const handlePointerUp = useCallback(() => {
+		onInteractionEnd?.()
+	}, [onInteractionEnd])
+
 	return (
 		<div className="flex flex-col gap-1.5">
 			<div className="flex items-center justify-between">
@@ -71,6 +77,8 @@ export function StatusBar({
 				ref={barRef}
 				onPointerDown={handlePointerDown}
 				onPointerMove={handlePointerMove}
+				onPointerUp={handlePointerUp}
+				onLostPointerCapture={handlePointerUp}
 				className="relative h-5 rounded-full bg-surface-bar cursor-pointer overflow-hidden touch-none"
 			>
 				<div
