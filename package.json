@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && node scripts/post-build.js",
+    "build": "vite build",
     "start": "vite preview"
   },
   "devDependencies": {
@@ -19,10 +19,10 @@
   },
   "dependencies": {
     "@tanstack/react-router": "^1.167.3",
-    "@tanstack/react-start": "^1.166.14",
+    "@tanstack/router-plugin": "^1.166.12",
+    "@vitejs/plugin-react": "^6.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "vinxi": "^0.5.11",
     "vite": "^8.0.0"
   }
 }

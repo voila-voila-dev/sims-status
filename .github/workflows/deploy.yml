@@ -26,9 +26,12 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Add SPA redirect
+        run: echo '/*  /index.html  200' > dist/_redirects
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/client --project-name=sims-status
+          command: pages deploy dist --project-name=sims-status

@@ -1,12 +1,8 @@
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    tanstackStart({
-      spa: { enabled: true, maskPath: "/" },
-    }),
-  ],
+  plugins: [tailwindcss(), TanStackRouterVite(), react()],
 });
