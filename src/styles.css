@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sims-bg: #1a2332;
+  --color-sims-card: #243447;
+  --color-sims-panel: #0d1520;
+}
+
+@keyframes bar-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-shimmer {
+  animation: bar-shimmer 2.5s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
