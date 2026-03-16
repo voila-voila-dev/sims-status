@@ -1,6 +1,6 @@
 import { useRef, useCallback } from "react"
 import { DirectionIndicator } from "./DirectionIndicator"
-import type { CategoryId, StatusEntry } from "./useStatusStore"
+import type { CategoryId, StatusEntry } from "#/hooks/useStatusStore"
 
 function barColorClass(level: number): string {
 	if (level >= 70) return "bg-bar-high shadow-bar-high/40"

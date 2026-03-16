@@ -1,4 +1,4 @@
-import type { Direction } from "./useStatusStore"
+import type { Direction } from "#/hooks/useStatusStore"
 
 const config: Record<Direction, { symbol: string; color: string; label: string }> = {
 	increasing: { symbol: "▲", color: "text-dir-up", label: "Increasing" },

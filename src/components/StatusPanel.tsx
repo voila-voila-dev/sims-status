@@ -1,5 +1,5 @@
 import { StatusBar } from "./StatusBar"
-import type { StatusEntry, CategoryId } from "./useStatusStore"
+import type { StatusEntry, CategoryId } from "#/hooks/useStatusStore"
 import type { TranslationKey } from "#/hooks/useLocale"
 
 export function StatusPanel({
