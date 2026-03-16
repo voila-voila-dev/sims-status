@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+html {
+	touch-action: manipulation;
+	-webkit-text-size-adjust: 100%;
+}
+
+@theme {
+	/* Surface */
+	--color-surface: oklch(0.145 0.005 285);
+	--color-surface-card: oklch(0.205 0.008 285 / 0.9);
+	--color-surface-bar: oklch(0.25 0.005 285 / 0.6);
+	--color-surface-btn: oklch(0.25 0.005 285 / 0.5);
+	--color-surface-btn-hover: oklch(0.32 0.005 285 / 0.5);
+	--color-border-subtle: oklch(0.45 0.01 285 / 0.3);
+
+	/* Text */
+	--color-text-primary: oklch(0.98 0 0 / 0.9);
+	--color-text-muted: oklch(0.65 0.01 285);
+	--color-text-hint: oklch(0.55 0.01 285);
+
+	/* Bar levels */
+	--color-bar-high: oklch(0.75 0.18 160);
+	--color-bar-mid: oklch(0.82 0.17 95);
+	--color-bar-low: oklch(0.75 0.17 55);
+	--color-bar-critical: oklch(0.65 0.2 25);
+
+	/* Direction indicators */
+	--color-dir-up: oklch(0.75 0.18 160);
+	--color-dir-down: oklch(0.65 0.2 25);
+	--color-dir-stable: oklch(0.55 0.01 285);
+
+	/* Animations */
+	--animate-shimmer-right: shimmer-right 1.5s ease-in-out infinite;
+	--animate-shimmer-left: shimmer-left 1.5s ease-in-out infinite;
+
+	/* Accent (plumbob green) */
+	--color-accent: oklch(0.75 0.18 160);
+	--color-accent-glow: oklch(0.75 0.18 160 / 0.5);
+	--color-accent-shadow: oklch(0.3 0.1 160 / 0.2);
+}
+
+@keyframes shimmer-right {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(200%); }
+}
+
+@keyframes shimmer-left {
+	0% { transform: translateX(200%); }
+	100% { transform: translateX(-100%); }
+}
