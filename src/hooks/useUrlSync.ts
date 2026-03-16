@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback } from "react"
+import { useUrlParams, getParams } from "./useUrlParams"
 import {
 	DEFAULT_STATUSES,
 	type StatusEntry,
@@ -23,8 +24,8 @@ export interface UrlState {
 	locale?: Locale
 }
 
-function parseStateFromURL(): UrlState {
-	const params = new URLSearchParams(window.location.search)
+export function parseStateFromURL(): UrlState {
+	const params = getParams()
 	const result: UrlState = {}
 
 	const parsed: StatusEntry[] = []
@@ -57,59 +58,32 @@ function parseStateFromURL(): UrlState {
 	return result
 }
 
-function encodeStateToURL(
-	statuses: StatusEntry[],
-	customTitle: string | null,
-	locale: Locale,
-): string {
-	const params = new URLSearchParams()
-
-	for (const st of statuses) {
-		params.set(st.id, `${st.level}.${DIR_SHORT[st.direction]}`)
-	}
-
-	if (customTitle) params.set("t", customTitle)
-	if (locale !== "en") params.set("l", locale)
-
-	return `${window.location.origin}${window.location.pathname}?${params.toString()}`
-}
-
 /**
- * Reads initial state from URL params and provides deferred URL sync.
- * State updates are instant; URL only updates on flushUrlSync() or after
- * an 800ms fallback debounce.
+ * Sims-specific URL sync. Serializes statuses, title, and locale into URL
+ * params. Defers writes via useUrlParams; call flushUrlSync on interaction end.
  */
 export function useUrlSync(
 	statuses: StatusEntry[],
 	customTitle: string | null,
 	locale: Locale,
 ) {
-	const latestStateRef = useRef({ statuses, customTitle, locale })
-	latestStateRef.current = { statuses, customTitle, locale }
+	const serialize = useCallback(() => {
+		const params: Record<string, string> = {}
 
-	const replaceTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
-
-	const flushUrlSync = useCallback(() => {
-		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
-		const { statuses: s, customTitle: ct, locale: l } = latestStateRef.current
-		const url = encodeStateToURL(s, ct, l)
-		window.history.replaceState(null, "", url)
-	}, [])
-
-	// Fallback debounce for non-slider state changes (title, locale, direction)
-	useEffect(() => {
-		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
-		replaceTimerRef.current = setTimeout(flushUrlSync, 800)
-		return () => {
-			if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
+		for (const st of statuses) {
+			params[st.id] = `${st.level}.${DIR_SHORT[st.direction]}`
 		}
-	}, [statuses, customTitle, locale, flushUrlSync])
 
-	const getShareUrl = useCallback(() => {
-		return encodeStateToURL(statuses, customTitle, locale)
+		if (customTitle) params.t = customTitle
+		if (locale !== "en") params.l = locale
+
+		return params
 	}, [statuses, customTitle, locale])
 
-	return { flushUrlSync, getShareUrl }
-}
+	const { flush, buildUrl } = useUrlParams(
+		serialize,
+		[statuses, customTitle, locale],
+	)
 
-export { parseStateFromURL }
+	return { flushUrlSync: flush, getShareUrl: buildUrl }
+}
