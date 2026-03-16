@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useRef } from "react"
 import { EditableTitle } from "./EditableTitle"
 import { Plumbob } from "./Plumbob"
 import { SettingsModal } from "./SettingsModal"
@@ -92,10 +92,17 @@ export function SimsCard() {
 		year: "numeric",
 	})
 
-	// Keep URL in sync with current state
+	// Keep URL in sync with current state (debounced to avoid browser rate limit)
+	const replaceTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
 	useEffect(() => {
-		const url = encodeStateToURL(statuses, customTitle, locale)
-		window.history.replaceState(null, "", url)
+		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
+		replaceTimerRef.current = setTimeout(() => {
+			const url = encodeStateToURL(statuses, customTitle, locale)
+			window.history.replaceState(null, "", url)
+		}, 150)
+		return () => {
+			if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
+		}
 	}, [statuses, customTitle, locale])
 
 	const handleShare = useCallback(() => {
