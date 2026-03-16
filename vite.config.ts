@@ -3,5 +3,10 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), tanstackStart()],
+  plugins: [
+    tailwindcss(),
+    tanstackStart({
+      spa: { enabled: true, maskPath: "/" },
+    }),
+  ],
 });
