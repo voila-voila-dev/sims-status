@@ -92,18 +92,29 @@ export function SimsCard() {
 		year: "numeric",
 	})
 
-	// Keep URL in sync with current state (debounced to avoid browser rate limit)
+	// URL sync: state updates are instant, URL updates are deferred.
+	// Flush immediately on interaction end (pointer up); fallback debounce for
+	// non-slider changes (title, locale, direction toggle).
+	const latestStateRef = useRef({ statuses, customTitle, locale })
+	latestStateRef.current = { statuses, customTitle, locale }
+
 	const replaceTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
+
+	const flushUrlSync = useCallback(() => {
+		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
+		const { statuses: s, customTitle: ct, locale: l } = latestStateRef.current
+		const url = encodeStateToURL(s, ct, l)
+		window.history.replaceState(null, "", url)
+	}, [])
+
+	// Fallback debounce for non-slider state changes (title, locale, direction)
 	useEffect(() => {
 		if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
-		replaceTimerRef.current = setTimeout(() => {
-			const url = encodeStateToURL(statuses, customTitle, locale)
-			window.history.replaceState(null, "", url)
-		}, 150)
+		replaceTimerRef.current = setTimeout(flushUrlSync, 800)
 		return () => {
 			if (replaceTimerRef.current) clearTimeout(replaceTimerRef.current)
 		}
-	}, [statuses, customTitle, locale])
+	}, [statuses, customTitle, locale, flushUrlSync])
 
 	const handleShare = useCallback(() => {
 		const url = encodeStateToURL(statuses, customTitle, locale)
@@ -187,6 +198,7 @@ export function SimsCard() {
 						t={(key) => t(locale, key)}
 						onLevelChange={setLevel}
 						onDirectionCycle={cycleDirection}
+						onInteractionEnd={flushUrlSync}
 					/>
 				</div>
 
