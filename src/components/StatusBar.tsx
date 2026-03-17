@@ -62,7 +62,7 @@ export const StatusBar = memo(function StatusBar({
 	}, [onInteractionEnd])
 
 	return (
-		<div className="flex flex-col gap-1.5">
+		<div className="flex flex-col gap-1.5 select-none">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-1.5">
 					<span className="text-base leading-none">{entry.emoji}</span>
