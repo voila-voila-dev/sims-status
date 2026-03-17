@@ -32,6 +32,7 @@ export function useStatusStore(initial?: StatusEntry[]) {
 			prev.map((s) => {
 				if (s.id !== id) return s
 				const clamped = Math.max(0, Math.min(100, level))
+				if (clamped === s.level) return s
 				const direction: Direction =
 					clamped > s.level ? "increasing" : clamped < s.level ? "decreasing" : s.direction
 				return { ...s, level: clamped, direction }
