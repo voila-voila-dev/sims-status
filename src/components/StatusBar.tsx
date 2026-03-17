@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react"
+import { useRef, useCallback, memo } from "react"
 import { DirectionIndicator } from "./DirectionIndicator"
 import type { CategoryId, StatusEntry } from "#/hooks/useStatusStore"
 
@@ -9,7 +9,7 @@ function barColorClass(level: number): string {
 	return "bg-bar-critical shadow-bar-critical/40"
 }
 
-export function StatusBar({
+export const StatusBar = memo(function StatusBar({
 	entry,
 	label,
 	onLevelChange,
@@ -23,6 +23,7 @@ export function StatusBar({
 	onInteractionEnd?: () => void
 }) {
 	const barRef = useRef<HTMLDivElement>(null)
+	const isDragging = useRef(false)
 
 	const handleInteraction = useCallback(
 		(clientX: number) => {
@@ -40,6 +41,7 @@ export function StatusBar({
 			e.preventDefault()
 			const el = barRef.current
 			if (!el) return
+			isDragging.current = true
 			el.setPointerCapture(e.pointerId)
 			handleInteraction(e.clientX)
 		},
@@ -55,6 +57,7 @@ export function StatusBar({
 	)
 
 	const handlePointerUp = useCallback(() => {
+		isDragging.current = false
 		onInteractionEnd?.()
 	}, [onInteractionEnd])
 
@@ -82,7 +85,7 @@ export function StatusBar({
 				className="relative h-5 rounded-full bg-surface-bar cursor-pointer overflow-hidden touch-none"
 			>
 				<div
-					className={`absolute inset-y-0 left-0 rounded-full shadow-md transition-all duration-150 ease-out overflow-hidden ${barColorClass(entry.level)}`}
+					className={`absolute inset-y-0 left-0 rounded-full shadow-md overflow-hidden ${isDragging.current ? "" : "transition-all duration-150 ease-out"} ${barColorClass(entry.level)}`}
 					style={{ width: `${Math.max(entry.level, 6)}%` }}
 				>
 					{entry.direction !== "stable" && (
@@ -100,4 +103,4 @@ export function StatusBar({
 			</div>
 		</div>
 	)
-}
+})
